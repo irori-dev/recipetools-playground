@@ -1,54 +1,55 @@
-# React + TypeScript + Vite
+# @recipetools/core デモアプリケーション
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+このリポジトリは[@recipetools/core](https://github.com/irori-dev/recipetools-core)ライブラリの機能を紹介するためのデモアプリケーションです。
 
-Currently, two official plugins are available:
+## 概要
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+@recipetools/coreは、料理レシピを構造化データとして扱い、様々な分析や可視化を行うためのツールキットです。主な機能は以下の通りです：
 
-## Expanding the ESLint configuration
+- レシピJSONの検証（バリデーション）
+- レシピデータの解析
+- 調理プロセスの可視化（Mermaidグラフの生成）
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+このデモアプリケーションでは、上記機能の使用方法をブラウザ上で体験できます。
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 使い方
+
+1. サンプルのレシピJSONをテキストエリアに貼り付ける
+2. 「レシピを表示する」ボタンをクリック
+3. レシピの各情報と調理プロセス図が表示されます
+
+## 試してみる
+
+以下のURLで公開されているデモアプリを試すことができます：
+[https://recipetools-playground.web.app](https://recipetools-playground.web.app)
+
+## サンプルレシピJSON
+
+`public/samples`ディレクトリにサンプルJSONが用意されています。これらのサンプルを使って@recipetools/coreの機能を試すことができます。
+
+## 開発者向け情報
+
+### インストール
+```bash
+pnpm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+### 開発サーバー起動
+```bash
+pnpm dev
 ```
+
+### ビルド
+```bash
+pnpm build
+```
+
+### デプロイ（Firebase）
+```bash
+pnpm build
+npx firebase deploy
+```
+
+## ライセンス
+
+MIT

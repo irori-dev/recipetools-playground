@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { parseRecipe, generateProcessGraph, validateRecipe, Recipe, Ingredient, Step } from "@recipetools/core";
 import Mermaid from "./components/mermaid";
 
@@ -33,6 +33,89 @@ export default function App() {
   const [graph, setGraph] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  // URLパラメータに基づいてサンプルJSONを読み込む
+  useEffect(() => {
+    const loadSampleFromUrl = async () => {
+      try {
+        // URLからサンプル名を取得
+        const urlPath = window.location.pathname;
+        let sampleName = '';
+
+        // パス '/' 後のサンプル名を取得または URLSearchParams から取得
+        if (urlPath.length > 1) {
+          // '/sample-name' の形式からサンプル名を抽出
+          sampleName = urlPath.substring(1);
+        } else {
+          // 'サンプル名'または'?サンプル名'の形式をチェック
+          const searchStr = window.location.search;
+          if (searchStr.startsWith('?') && searchStr.length > 1) {
+            sampleName = searchStr.substring(1);
+          }
+        }
+
+        if (sampleName) {
+          // 対応するJSONファイルを読み込む
+          const response = await fetch(`/samples/${sampleName}.json`);
+          if (response.ok) {
+            const jsonText = await response.text();
+            setInput(jsonText);
+            // 自動的にレシピを生成
+            handleSampleLoad(jsonText);
+          }
+        }
+      } catch (error) {
+        console.error('サンプルの読み込みに失敗しました:', error);
+      }
+    };
+
+    loadSampleFromUrl();
+  }, []);
+
+  // サンプル読み込み時のハンドラー
+  const handleSampleLoad = (jsonText: string) => {
+    try {
+      console.log("サンプルJSONテキスト:", jsonText);
+      const parsedJson = JSON.parse(jsonText);
+      console.log("パース後のJSON:", parsedJson);
+      
+      // バリデーションエラーの詳細を手動で確認
+      const errors: string[] = [];
+
+      // 基本的な必須項目のチェック
+      if (!parsedJson.title) errors.push("タイトルが必要です");
+      if (!Array.isArray(parsedJson.ingredients) || parsedJson.ingredients.length === 0) {
+        errors.push("材料リストが必要です");
+      }
+      if (!Array.isArray(parsedJson.steps) || parsedJson.steps.length === 0) {
+        errors.push("手順が必要です");
+      }
+      if (!parsedJson.results) errors.push("results フィールドが必要です");
+
+      console.log("手動バリデーションエラー:", errors);
+      
+      if (validateRecipe(parsedJson)) {
+        console.log("validateRecipe 成功");
+        const parsedRecipe = parseRecipe(parsedJson);
+        setRecipe(parsedRecipe);
+        const mermaidCode = generateProcessGraph(parsedRecipe);
+        setGraph(mermaidCode);
+        setError(null);
+        setValidationErrors([]);
+      } else {
+        console.error("validateRecipe 失敗");
+        setError("サンプルレシピの形式が正しくありません");
+        
+        // validateRecipeが失敗した場合は手動のエラーも表示する
+        if (errors.length > 0) {
+          setValidationErrors(errors);
+        }
+      }
+    } catch (e) {
+      console.error("サンプルJSONパースエラー:", e);
+      setError("サンプルJSONのパースに失敗しました");
+    }
+  };
 
   const handleGenerate = () => {
     try {
@@ -124,6 +207,10 @@ export default function App() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-center">レシピビューワー</h1>
+        
+        <div className="mt-4 text-center">
+          <a href="/samples/index.html" className="text-blue-600 hover:underline">サンプルレシピを見る</a>
+        </div>
 
         <div className="card mt-6">
           <div className="mb-4">
